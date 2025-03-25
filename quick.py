@@ -5,7 +5,6 @@ import random
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
-import numpy as np
 
 class StockInvestmentSimulator:
     def __init__(self, root):
@@ -27,7 +26,6 @@ class StockInvestmentSimulator:
         self.initial_balance = 50000
         self.user_balance = self.initial_balance
         self.invested_amount = 0
-        self.invested_stocks = []
         self.simulation_active = False
         self.simulation_duration = 30  # seconds
         self.current_time = 0
@@ -48,6 +46,7 @@ class StockInvestmentSimulator:
         self.historical_data = {stock["symbol"]: [] for stock in self.stocks}
         self.portfolio_history = []
         self.time_points = []
+        self.lines_initialized = False
     
     def create_welcome_page(self):
         """Create the welcome/intro page"""
@@ -241,20 +240,46 @@ class StockInvestmentSimulator:
         self.ax.xaxis.label.set_color('white')
         self.ax.title.set_color('white')
         
-        # Create empty plots - we'll create actual lines when simulation starts
+        # Initialize empty lines dictionary
         self.stock_lines = {}
         self.portfolio_line = None
+        self.lines_initialized = False
         
         self.ax.set_title("Stock Prices & Portfolio Value", pad=20)
         self.ax.set_xlabel("Time (s)", labelpad=10)
         self.ax.set_ylabel("Value ($)", labelpad=10)
-        self.ax.legend()
         self.ax.grid(True, color='#444', linestyle='--', alpha=0.5)
         
         # Embed in Tkinter
         self.canvas = FigureCanvasTkAgg(self.fig, master=parent)
         self.canvas.draw()
         self.canvas.get_tk_widget().pack(expand=True, fill="both", padx=10, pady=10)
+    
+    def initialize_lines(self):
+        """Initialize plot lines for invested stocks"""
+        self.ax.clear()
+        self.stock_lines = {}
+        
+        # Create lines for invested stocks
+        for stock in self.stocks:
+            if stock["shares"] > 0:
+                line, = self.ax.plot([], [], '-', 
+                                   color=stock["color"],
+                                   linewidth=1.5,
+                                   label=f"{stock['symbol']}")
+                self.stock_lines[stock["symbol"]] = line
+        
+        # Create portfolio line (thicker)
+        self.portfolio_line, = self.ax.plot([], [], 'w-', linewidth=3, label="PORTFOLIO")
+        
+        # Reconfigure plot
+        self.ax.set_title("Stock Prices & Portfolio Value", pad=20)
+        self.ax.set_xlabel("Time (s)", labelpad=10)
+        self.ax.set_ylabel("Value ($)", labelpad=10)
+        self.ax.legend()
+        self.ax.grid(True, color='#444', linestyle='--', alpha=0.5)
+        
+        self.lines_initialized = True
     
     def trade_stock(self, action):
         """Handle buying or selling shares"""
@@ -304,6 +329,7 @@ class StockInvestmentSimulator:
         self.update_portfolio_display()
         self.update_balance_display(self.portfolio_tree.master)
         self.simulate_button.config(state="normal" if self.invested_amount > 0 else "disabled")
+        self.lines_initialized = False  # Force re-initialization of lines
     
     def update_portfolio_display(self):
         """Update the portfolio treeview"""
@@ -334,28 +360,9 @@ class StockInvestmentSimulator:
         # Create simulation page
         self.create_simulation_page()
         
-        # Initialize plot lines for invested stocks only
-        self.ax.clear()  # Clear previous lines
-        
-        # Create lines for invested stocks
-        self.stock_lines = {}
-        for stock in self.stocks:
-            if stock["shares"] > 0:
-                line, = self.ax.plot([], [], '-', 
-                                   color=stock["color"],
-                                   linewidth=1.5,
-                                   label=f"{stock['symbol']}")
-                self.stock_lines[stock["symbol"]] = line
-        
-        # Create portfolio line (thicker)
-        self.portfolio_line, = self.ax.plot([], [], 'w-', linewidth=3, label="PORTFOLIO")
-        
-        # Reconfigure plot
-        self.ax.set_title("Stock Prices & Portfolio Value", pad=20)
-        self.ax.set_xlabel("Time (s)", labelpad=10)
-        self.ax.set_ylabel("Value ($)", labelpad=10)
-        self.ax.legend()
-        self.ax.grid(True, color='#444', linestyle='--', alpha=0.5)
+        # Initialize plot lines if not already done
+        if not self.lines_initialized:
+            self.initialize_lines()
         
         # Start animation
         self.ani = FuncAnimation(
@@ -454,6 +461,9 @@ class StockInvestmentSimulator:
         self.ax.relim()
         self.ax.autoscale_view()
         
+        # Redraw legend to include all lines
+        self.ax.legend()
+        
         # Stop if duration reached
         if self.current_time >= self.simulation_duration:
             self.stop_simulation()
@@ -480,7 +490,7 @@ class StockInvestmentSimulator:
         
         result_window = tk.Toplevel(self.root)
         result_window.title("Simulation Results")
-        result_window.geometry("500x400")
+        result_window.geometry("500x300")
         
         frame = ttk.Frame(result_window, padding=20)
         frame.pack(expand=True, fill="both")
@@ -523,13 +533,7 @@ class StockInvestmentSimulator:
             text="Try Again",
             command=lambda: [result_window.destroy(), self.reset_and_restart()],
             style="Accent.TButton"
-        ).pack(side="left", padx=10)
-        
-        ttk.Button(
-            button_frame,
-            text="Quit",
-            command=self.root.quit
-        ).pack(side="right", padx=10)
+        ).pack(expand=True)
         
         result_window.transient(self.root)
         result_window.grab_set()
