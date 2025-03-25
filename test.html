@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Investment Simulator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 50px;
+        }
+        .stock-list {
+            margin-top: 20px;
+            list-style-type: none;
+            padding: 0;
+        }
+        .stock-item {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        #loading {
+            display: none;
+            font-size: 24px;
+            color: blue;
+        }
+        #results {
+            margin-top: 30px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Stock Investment Simulator</h1>
+    <p>Enter the amount you want to invest:</p>
+    <input type="number" id="amount" placeholder="Amount to invest" required>
+    <button onclick="invest()">Invest</button>
+
+    <div id="loading">Investing... Please wait...</div>
+
+    <div id="results">
+        <h2>Investment Results</h2>
+        <ul class="stock-list" id="stockResults"></ul>
+    </div>
+
+    <script>
+        function invest() {
+            var amount = document.getElementById('amount').value;
+            if (!amount) {
+                alert("Please enter an investment amount.");
+                return;
+            }
+
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('results').style.display = 'none';
+
+            // Send the investment amount to the Flask backend
+            fetch('/invest', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'amount=' + amount
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('results').style.display = 'block';
+
+                // Clear previous results
+                var stockResults = document.getElementById('stockResults');
+                stockResults.innerHTML = '';
+
+                // Display the results
+                for (const [stock, value] of Object.entries(data)) {
+                    var li = document.createElement('li');
+                    li.classList.add('stock-item');
+                    li.textContent = stock + ': $' + value;
+                    stockResults.appendChild(li);
+                }
+            })
+            .catch(error => {
+                document.getElementById('loading').style.display = 'none';
+                alert("An error occurred: " + error);
+            });
+        }
+    </script>
+</body>
+</html>

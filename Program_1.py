@@ -23,7 +23,7 @@ def invest():
             new_value = amount * (1 + change_percentage)
             stock_results[stock] = round(new_value, 2)
         
-        # Return the simulation results as JSON
+        # Return the simulation results 
         return jsonify(stock_results)
 
 if __name__ == '__main__':
