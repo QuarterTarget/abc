@@ -443,7 +443,7 @@ class StockInvestmentSimulator:
         profit_loss = final_value - self.invested_amount
         pl_percent = (profit_loss / self.invested_amount) * 100 if self.invested_amount else 0
         
-        # Create results window
+        # Create results window. opens in a new window.
         result_window = tk.Toplevel(self.root)
         result_window.title("Simulation Results")
         result_window.geometry("1100x900")
@@ -557,108 +557,64 @@ class StockInvestmentSimulator:
         tree.tag_configure("profit", foreground="#4CAF50")
         tree.tag_configure("loss", foreground="#F44336")
         
-        # Tab 2: Interactive View with improved slider
-        interactive_frame = ttk.Frame(notebook)
-        notebook.add(interactive_frame, text="Historical Graph")
-        
-        # Create figure for interactive view
-        self.interactive_fig, self.interactive_ax = plt.subplots(figsize=(9, 4), dpi=100)
-        self.interactive_fig.patch.set_facecolor('#2d2d2d')
-        self.interactive_ax.set_facecolor('#2d2d2d')
+       
+# Create figure for historical view
+        self.historical_fig, self.historical_ax = plt.subplots(figsize=(9, 4), dpi=100)
+        self.historical_fig.patch.set_facecolor('#2d2d2d')
+        self.historical_ax.set_facecolor('#2d2d2d')
         
         # Style the axes
-        for spine in self.interactive_ax.spines.values():
+        for spine in self.historical_ax.spines.values():
             spine.set_color('#444')
-        self.interactive_ax.tick_params(colors='white')
-        self.interactive_ax.yaxis.label.set_color('white')
-        self.interactive_ax.xaxis.label.set_color('white')
-        self.interactive_ax.title.set_color('white')
+        self.historical_ax.tick_params(colors='white')
+        self.historical_ax.yaxis.label.set_color('white')
+        self.historical_ax.xaxis.label.set_color('white')
+        self.historical_ax.title.set_color('white')
         
-        # Slider frame with improved visibility
-        slider_frame = ttk.Frame(interactive_frame)
-        slider_frame.pack(fill="x", pady=(10, 15), padx=20)
-        
-        # Large, visible slider components
-        ttk.Label(
-            slider_frame,
-            text="Time:",
-            font=("Helvetica", 12, "bold")
-        ).pack(side="left")
-        
-        self.slider_var = tk.IntVar(value=0)
-        self.slider = ttk.Scale(
-            slider_frame,
-            from_=0,
-            to=len(self.time_points)-1,
-            variable=self.slider_var,
-            command=self.update_interactive_view,
-            length=600,  # Extra wide slider
-            style="Horizontal.TScale"
-        )
-        self.slider.pack(side="left", expand=True, fill="x", padx=10)
-        
-        self.time_label = ttk.Label(
-            slider_frame,
-            text="0s",
-            font=("Helvetica", 12, "bold"),
-            width=6
-        )
-        self.time_label.pack(side="left")
-        
-        # Create initial interactive view
-        self.update_interactive_view()
-        
-        # Embed in Tkinter
-        self.interactive_canvas = FigureCanvasTkAgg(self.interactive_fig, master=interactive_frame)
-        self.interactive_canvas.draw()
-        self.interactive_canvas.get_tk_widget().pack(expand=True, fill="both", padx=10, pady=10)
-        
-        # Action button
-        button_frame = ttk.Frame(main_frame)
-        button_frame.pack(fill="x", pady=20)
-        
-        ttk.Button(
-            button_frame,
-            text="Try Again",
-            command=lambda: [result_window.destroy(), self.reset_and_restart()],
-            style="Accent.TButton"
-        ).pack(expand=True)
-        
-        result_window.transient(self.root)
-        result_window.grab_set()
-        self.root.wait_window(result_window)
-    
-    def update_interactive_view(self, *args):
-        """Update the interactive view based on slider position"""
-        time_idx = self.slider_var.get()
-        if time_idx >= len(self.time_points):
-            return
-        
-        self.interactive_ax.clear()
-        
-        # Update time label
-        self.time_label.config(text=f"{self.time_points[time_idx]}s")
-        
-        # Plot all invested stocks up to current time
+        # Plot all invested stocks
         for stock in self.stocks:
             if stock["shares"] > 0:
-                self.interactive_ax.plot(
-                    self.time_points[:time_idx+1],
-                    self.historical_data[stock["symbol"]][:time_idx+1],
+                self.historical_ax.plot(
+                    self.time_points,
+                    self.historical_data[stock["symbol"]],
                     '-',
                     color=stock["color"],
                     linewidth=1.5,
                     label=f"{stock['symbol']}"
                 )
         
-        self.interactive_ax.set_title(f"Stock Prices at {self.time_points[time_idx]}s", pad=20)
-        self.interactive_ax.set_xlabel("Time (s)", labelpad=10)
-        self.interactive_ax.set_ylabel("Price ($)", labelpad=10)
-        self.interactive_ax.legend()
-        self.interactive_ax.grid(True, color='#444', linestyle='--', alpha=0.5)
-        self.interactive_ax.set_xlim(0, self.time_points[-1])
+        self.historical_ax.set_title("Stock Price History", pad=20)
+        self.historical_ax.set_xlabel("Time (s)", labelpad=10)
+        self.historical_ax.set_ylabel("Price ($)", labelpad=10)
+        self.historical_ax.legend()
+        self.historical_ax.grid(True, color='#444', linestyle='--', alpha=0.5)
         
-        self.interactive_canvas.draw()
+        # Embed in Tkinter
+        self.historical_canvas = FigureCanvasTkAgg(self.historical_fig, master=interactive_frame)
+        self.historical_canvas.draw()
+        self.historical_canvas.get_tk_widget().pack(expand=True, fill="both", padx=10, pady=10)
+        
+        # Action buttons
+        button_frame = ttk.Frame(main_frame)
+        button_frame.pack(fill="x", pady=20)
+        
+        ttk.Button(
+            button_frame,
+            text="Back to Dashboard",
+            command=lambda: [result_window.destroy(), self.reset_and_restart()],
+            style="Accent.TButton"
+        ).pack(side="left", expand=True, padx=10)
+        
+        ttk.Button(
+            button_frame,
+            text="Try Again",
+            command=lambda: [result_window.destroy(), self.reset_and_restart()],
+            style="Accent.TButton"
+        ).pack(side="left", expand=True, padx=10)
+        
+        result_window.transient(self.root)
+        result_window.grab_set()
+        self.root.wait_window(result_window)
     
     def reset_and_restart(self):
         """Reset the game and return to welcome page"""
