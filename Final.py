@@ -39,14 +39,14 @@ class StockInvestmentSimulator:
         self.simulation_duration = 30  # seconds
         self.current_time = 0
         
-        #This next portion is almost all codes for the GUI. I will label each section
+        #This next portion is almost all codes for the GUI. I will label each section with a comment so it is visible who did what and what it does.
         # Stock data with color coding. This part was made with Chatgpt, mostly due to me not being arsed to manually type it out. Are you serious? My fingers will hurt
         self.stocks = [
             {"name": "Tesla", "symbol": "TSLA", "price": 25.50, "volatility": 1.5, "shares": 0, "color": "#1f77b4"},
             {"name": "Apple", "symbol": "AAPL", "price": 18.75, "volatility": 1.0, "shares": 0, "color": "#ff7f0e"},
             {"name": "Amazon", "symbol": "AMZN", "price": 15.20, "volatility": 1.2, "shares": 0, "color": "#2ca02c"},
             {"name": "Google", "symbol": "GOOGL", "price": 14.80, "volatility": 1.1, "shares": 0, "color": "#d62728"},
-            {"name": "Microsoft", "symbol": "MSFT", "price": 30.25, "volatility": 0.9, "shares": 0, "color": "#9467bd"},
+            {"name": "Microsoft", "symbol": "MSFT", "price": 30.25, "volatility": 0.9, "shares": 0, "color": "#9467bd"},                #The prices are low and the budget is high. I might change this later but tbh I will keep it. if it works dont fix it!
             {"name": "Netflix", "symbol": "NFLX", "price": 40.60, "volatility": 1.3, "shares": 0, "color": "#8c564b"},
             {"name": "Nvidia", "symbol": "NVDA", "price": 60.75, "volatility": 1.8, "shares": 0, "color": "#e377c2"},
             {"name": "Meta", "symbol": "META", "price": 35.40, "volatility": 1.4, "shares": 0, "color": "#7f7f7f"}
@@ -66,22 +66,22 @@ class StockInvestmentSimulator:
         
         title_label = ttk.Label(
             frame, 
-            text="📈 Stock Investment Simulator 📉", 
+            text="📈 Stock Investment Simulator 📉",          #Heh, emojis
             font=("Helvetica", 24, "bold")
         )
         title_label.pack(pady=20)
         
         description = ttk.Label(
             frame,
-            text="Invest in simulated stocks and track your portfolio performance in real-time",
-            font=("Helvetica", 12),
+            text="Invest in simulated stocks and track your portfolio performance with the MarcMax Ultra Realistic Stock Simulator!",
+            font=("Helvetica", 12),        #Helvetic looks neat and it fits with the GUI we shamelessly stole from Github
             wraplength=600
         )
         description.pack(pady=10)
- # Display current balance
+ # Display current balance. Made by me. With a lot of cursing. Did you know chatgpt is incapable of making a simple label? AHHHHHHHH
         self.balance_label = ttk.Label(
             frame,
-            text=f"Starting Balance: ${self.initial_balance:,.2f}",
+            text=f"Starting Balance: ${self.initial_balance:,.2f}",        #to be fully serious, I used some youtube tutorial for this. 
             font=("Helvetica", 14, "bold"),
             foreground="#4CAF50"
         )
@@ -102,7 +102,7 @@ class StockInvestmentSimulator:
         main_frame = ttk.Frame(self.root)
         main_frame.pack(expand=True, fill="both", padx=10, pady=10)
         
-        # Left panel - Trading controls
+        # Left panel - Trading controls. I learned how to frame things! Yay!                   
         control_frame = ttk.Frame(main_frame, width=350)
         control_frame.pack(side="left", fill="y", padx=10, pady=10)
         
@@ -110,17 +110,17 @@ class StockInvestmentSimulator:
         chart_frame = ttk.Frame(main_frame)
         chart_frame.pack(side="right", expand=True, fill="both", padx=10, pady=10)
         
-        # Trading controls
+        # Trading controls. .pack is needed 
         ttk.Label(
             control_frame,
             text="Investment Controls",
             font=("Helvetica", 16, "bold")
         ).pack(pady=10)
         
-        # Balance display
+        # udpates and shows the current balance of the veri smart investor 
         self.update_balance_display(control_frame)
         
-        # Stock selection
+        # Stock selection. I thought a dropdown menu like this is pretty cool. Tutorial was needed. Thanks random bengali guy on youtube! I was thinking about adding the current price of the stock as well.
         ttk.Label(control_frame, text="Select Stock:").pack(pady=5)
         self.stock_var = tk.StringVar()
         stock_combobox = ttk.Combobox(
@@ -132,7 +132,7 @@ class StockInvestmentSimulator:
         stock_combobox.pack(fill="x", pady=5)
         stock_combobox.current(0)
         
-        # Shares input
+        # Shares the input
         ttk.Label(control_frame, text="Shares to trade:").pack(pady=5)
         self.shares_var = tk.IntVar(value=10)
         shares_spin = ttk.Spinbox(
@@ -144,7 +144,7 @@ class StockInvestmentSimulator:
         )
         shares_spin.pack(pady=5)
         
-        # Buy/Sell buttons
+        # Buy/Sell buttons. Pretty simple
         button_frame = ttk.Frame(control_frame)
         button_frame.pack(pady=10)
         
@@ -161,7 +161,7 @@ class StockInvestmentSimulator:
             command=lambda: self.trade_stock("sell")
         ).pack(side="left", padx=5)
         
-        # Portfolio summary
+        # Portfolio summary box. shows the current portfolio of the user. I used a treeview for this.
         ttk.Separator(control_frame).pack(fill="x", pady=10)
         ttk.Label(
             control_frame,
@@ -178,7 +178,7 @@ class StockInvestmentSimulator:
         self.portfolio_tree.heading("symbol", text="Symbol")
         self.portfolio_tree.heading("shares", text="Shares")
         self.portfolio_tree.heading("price", text="Price")
-        self.portfolio_tree.heading("value", text="Value")
+        self.portfolio_tree.heading("value", text="Value")                           #This was reformatted with AI. same excuse as before. my fingers hurt and I hate repetetive typing
         self.portfolio_tree.column("symbol", width=80)
         self.portfolio_tree.column("shares", width=80, anchor="e")
         self.portfolio_tree.column("price", width=90, anchor="e")
@@ -189,7 +189,7 @@ class StockInvestmentSimulator:
         scrollbar.pack(side="right", fill="y")
         self.portfolio_tree.pack(fill="both", expand=True)
         
-        # Action buttons
+        # simulation controls. 
         button_frame = ttk.Frame(control_frame)
         button_frame.pack(fill="x", pady=10)
         
@@ -208,7 +208,7 @@ class StockInvestmentSimulator:
             command=self.create_welcome_page
         ).pack(side="right", padx=5)
         
-        # Create the portfolio chart
+        # Creates the portfolio chart. I think? It works? hmmm
         self.create_portfolio_chart(chart_frame)
         self.update_portfolio_display()
     
@@ -223,7 +223,7 @@ class StockInvestmentSimulator:
         ttk.Label(
             self.balance_frame,
             text=f"Available: ${self.user_balance:,.2f}",
-            font=("Helvetica", 12, "bold"),
+            font=("Helvetica", 12, "bold"),                                  #oH my god! This section broke me. I HATE CHARTS
             foreground="#4CAF50"
         ).pack(side="left")
         
@@ -240,7 +240,7 @@ class StockInvestmentSimulator:
         self.fig.patch.set_facecolor('#2d2d2d')
         self.ax.set_facecolor('#2d2d2d')
         
-        # Style the axes
+        # Axes verändert. Max
         for spine in self.ax.spines.values():
             spine.set_color('#444')
         self.ax.tick_params(colors='white')
@@ -248,7 +248,7 @@ class StockInvestmentSimulator:
         self.ax.xaxis.label.set_color('white')
         self.ax.title.set_color('white')
         
-        # Create empty portfolio line
+        # leere portfolio line. Max
         self.portfolio_line, = self.ax.plot([], [], 'w-', linewidth=2, label="Portfolio Value")
         
         self.ax.set_title("Portfolio Value Over Time", pad=20)
@@ -257,7 +257,7 @@ class StockInvestmentSimulator:
         self.ax.legend()
         self.ax.grid(True, color='#444', linestyle='--', alpha=0.5)
         
-        # Embed in Tkinter
+        # ganzi in TKinter einfügen. Max
         self.canvas = FigureCanvasTkAgg(self.fig, master=parent)
         self.canvas.draw()
         self.canvas.get_tk_widget().pack(expand=True, fill="both", padx=10, pady=10)
@@ -271,7 +271,7 @@ class StockInvestmentSimulator:
             messagebox.showwarning("Invalid Input", "Please enter a positive number of shares")
             return
         
-        # Find the stock
+        # findet stock in der liste. Max
         stock = next((s for s in self.stocks if s["symbol"] == selected), None)
         if not stock:
             return
@@ -283,7 +283,7 @@ class StockInvestmentSimulator:
                                     f"You don't have enough funds to buy {shares} shares of {selected}")
                 return
             
-            # Execute buy
+            # executes the buy
             stock["shares"] += shares
             self.user_balance -= total_cost
             self.invested_amount += total_cost
@@ -297,7 +297,7 @@ class StockInvestmentSimulator:
                                     f"You don't have enough shares to sell {shares} of {selected}")
                 return
             
-            # Execute sell
+            # executes the sell
             total_value = shares * stock["price"]
             stock["shares"] -= shares
             self.user_balance += total_value
@@ -306,7 +306,7 @@ class StockInvestmentSimulator:
             messagebox.showinfo("Trade Executed", 
                              f"Sold {shares} shares of {selected} at ${stock['price']:,.2f}")
         
-        # Update UI immediately
+        # changes the UI and updates the portfolio. before I added this it was a mess and you had to go back and forth and reset before it would register any change
         self.update_portfolio_display()
         self.update_balance_display(self.portfolio_tree.master)
         self.simulate_button.config(state="normal" if self.invested_amount > 0 else "disabled")
@@ -324,3 +324,77 @@ class StockInvestmentSimulator:
                     stock["shares"],
                     f"${stock['price']:,.2f}",
                     f"${value:,.2f}"
+                ))
+    
+    def start_simulation(self):
+        """Start the stock simulation"""
+        self.simulation_active = True
+        self.current_time = 0
+        self.time_points = []
+        self.portfolio_history = []
+        
+        # nimmt vorherige historical daten.
+        for stock in self.stocks:
+            self.historical_data[stock["symbol"]] = [stock["price"]]
+        
+        # OK OK OK it works? sorta?? This opens the simulation.
+        self.create_simulation_page()
+        
+        # start animation. this uses the funcanimation I mentioned at the start. Deepseek many thanks! I will donate to the chinese gov. for this. 
+        self.ani = FuncAnimation(
+            self.fig,
+            self.update_simulation,
+            frames=self.simulation_duration,
+            interval=1000,
+            blit=False
+        )
+        self.canvas.draw()
+    
+    def create_simulation_page(self):
+        """Create the simulation page"""
+        self.clear_window()
+        
+        frame = ttk.Frame(self.root, padding=20)
+        frame.pack(expand=True, fill="both")
+        
+        # mit ttk ein header mit information. max
+        header_frame = ttk.Frame(frame)
+        header_frame.pack(fill="x", pady=10)
+        
+        ttk.Label(
+            header_frame,
+            text="Live Simulation",
+            font=("Helvetica", 18, "bold")
+        ).pack(side="left")
+        
+        self.sim_time_label = ttk.Label(
+            header_frame,
+            text="Time: 0s",
+            font=("Helvetica", 12)
+        )
+        self.sim_time_label.pack(side="right", padx=20)
+        
+        # display von value.
+        self.portfolio_value_label = ttk.Label(
+            frame,
+            text="Portfolio Value: $0.00",
+            font=("Helvetica", 14, "bold"),
+            foreground="#4CAF50"
+        )
+        self.portfolio_value_label.pack(pady=10)
+        
+        # portfolio chart recreation
+        self.create_portfolio_chart(frame)
+        
+        # the stop button. now pressing it during the simulation honestly really doesnt do anything. it kind of freezes
+        button_frame = ttk.Frame(frame)
+        button_frame.pack(fill="x", pady=10)
+        
+        self.stop_button = ttk.Button(
+            button_frame,
+            text="Stop Simulation",
+            command=self.stop_simulation,
+            style="Accent.TButton"
+        )
+        self.stop_button.pack(pady=10)
+    
