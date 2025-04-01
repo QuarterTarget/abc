@@ -12,7 +12,7 @@ from matplotlib.animation import FuncAnimation
 #all of the matplotlib libraries are for creating the graphs and animating them.
 #the idea for funcanimation was taken from a medium article I have forgotten the name of
 
-
+#ATTENTION. THIS VSCODE IS N O T THE ORIGINAL FILE! I SCREWED AROUND WITH CODE ON A DIFFERENT FILE AND THEREFORE A WHOLLLEEE BUNCH OF COPY PASTES ARE IN HERE
 #here we begin with the stock simulator:
 
 class StockInvestmentSimulator:
