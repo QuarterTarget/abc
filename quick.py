@@ -12,7 +12,7 @@ class StockInvestmentSimulator:
         self.root.title("Stock Investment Simulator")
         self.root.geometry("1100x800")
         
-        # Apply modern theme
+        # Apply modern dark theme
         sv_ttk.set_theme("dark")
         
         # Initialize game state
@@ -46,7 +46,6 @@ class StockInvestmentSimulator:
         self.historical_data = {stock["symbol"]: [] for stock in self.stocks}
         self.portfolio_history = []
         self.time_points = []
-        self.lines_initialized = False
     
     def create_welcome_page(self):
         """Create the welcome/intro page"""
@@ -98,7 +97,7 @@ class StockInvestmentSimulator:
         control_frame = ttk.Frame(main_frame, width=350)
         control_frame.pack(side="left", fill="y", padx=10, pady=10)
         
-        # Right panel - Combined chart
+        # Right panel - Chart
         chart_frame = ttk.Frame(main_frame)
         chart_frame.pack(side="right", expand=True, fill="both", padx=10, pady=10)
         
@@ -200,8 +199,8 @@ class StockInvestmentSimulator:
             command=self.create_welcome_page
         ).pack(side="right", padx=5)
         
-        # Create the combined chart
-        self.create_combined_chart(chart_frame)
+        # Create the portfolio chart
+        self.create_portfolio_chart(chart_frame)
         self.update_portfolio_display()
     
     def update_balance_display(self, parent):
@@ -226,8 +225,8 @@ class StockInvestmentSimulator:
             foreground="#FF9800"
         ).pack(side="right")
     
-    def create_combined_chart(self, parent):
-        """Create the combined stock and portfolio chart"""
+    def create_portfolio_chart(self, parent):
+        """Create the portfolio chart"""
         self.fig, self.ax = plt.subplots(figsize=(9, 5), dpi=100)
         self.fig.patch.set_facecolor('#2d2d2d')
         self.ax.set_facecolor('#2d2d2d')
@@ -240,46 +239,19 @@ class StockInvestmentSimulator:
         self.ax.xaxis.label.set_color('white')
         self.ax.title.set_color('white')
         
-        # Initialize empty lines dictionary
-        self.stock_lines = {}
-        self.portfolio_line = None
-        self.lines_initialized = False
+        # Create empty portfolio line
+        self.portfolio_line, = self.ax.plot([], [], 'w-', linewidth=2, label="Portfolio Value")
         
-        self.ax.set_title("Stock Prices & Portfolio Value", pad=20)
+        self.ax.set_title("Portfolio Value Over Time", pad=20)
         self.ax.set_xlabel("Time (s)", labelpad=10)
         self.ax.set_ylabel("Value ($)", labelpad=10)
+        self.ax.legend()
         self.ax.grid(True, color='#444', linestyle='--', alpha=0.5)
         
         # Embed in Tkinter
         self.canvas = FigureCanvasTkAgg(self.fig, master=parent)
         self.canvas.draw()
         self.canvas.get_tk_widget().pack(expand=True, fill="both", padx=10, pady=10)
-    
-    def initialize_lines(self):
-        """Initialize plot lines for invested stocks"""
-        self.ax.clear()
-        self.stock_lines = {}
-        
-        # Create lines for invested stocks
-        for stock in self.stocks:
-            if stock["shares"] > 0:
-                line, = self.ax.plot([], [], '-', 
-                                   color=stock["color"],
-                                   linewidth=1.5,
-                                   label=f"{stock['symbol']}")
-                self.stock_lines[stock["symbol"]] = line
-        
-        # Create portfolio line (thicker)
-        self.portfolio_line, = self.ax.plot([], [], 'w-', linewidth=3, label="PORTFOLIO")
-        
-        # Reconfigure plot
-        self.ax.set_title("Stock Prices & Portfolio Value", pad=20)
-        self.ax.set_xlabel("Time (s)", labelpad=10)
-        self.ax.set_ylabel("Value ($)", labelpad=10)
-        self.ax.legend()
-        self.ax.grid(True, color='#444', linestyle='--', alpha=0.5)
-        
-        self.lines_initialized = True
     
     def trade_stock(self, action):
         """Handle buying or selling shares"""
@@ -329,7 +301,6 @@ class StockInvestmentSimulator:
         self.update_portfolio_display()
         self.update_balance_display(self.portfolio_tree.master)
         self.simulate_button.config(state="normal" if self.invested_amount > 0 else "disabled")
-        self.lines_initialized = False  # Force re-initialization of lines
     
     def update_portfolio_display(self):
         """Update the portfolio treeview"""
@@ -359,10 +330,6 @@ class StockInvestmentSimulator:
         
         # Create simulation page
         self.create_simulation_page()
-        
-        # Initialize plot lines if not already done
-        if not self.lines_initialized:
-            self.initialize_lines()
         
         # Start animation
         self.ani = FuncAnimation(
@@ -407,8 +374,8 @@ class StockInvestmentSimulator:
         )
         self.portfolio_value_label.pack(pady=10)
         
-        # Recreate the combined chart
-        self.create_combined_chart(frame)
+        # Recreate the portfolio chart
+        self.create_portfolio_chart(frame)
         
         # Control buttons
         button_frame = ttk.Frame(frame)
@@ -448,11 +415,6 @@ class StockInvestmentSimulator:
         self.sim_time_label.config(text=f"Time: {self.current_time}s")
         self.portfolio_value_label.config(text=f"Portfolio Value: ${portfolio_value:,.2f}")
         
-        # Update all lines for invested stocks
-        for symbol, line in self.stock_lines.items():
-            if len(self.time_points) == len(self.historical_data[symbol]):
-                line.set_data(self.time_points, self.historical_data[symbol])
-        
         # Update portfolio line
         if len(self.time_points) == len(self.portfolio_history):
             self.portfolio_line.set_data(self.time_points, self.portfolio_history)
@@ -461,14 +423,11 @@ class StockInvestmentSimulator:
         self.ax.relim()
         self.ax.autoscale_view()
         
-        # Redraw legend to include all lines
-        self.ax.legend()
-        
         # Stop if duration reached
         if self.current_time >= self.simulation_duration:
             self.stop_simulation()
         
-        return list(self.stock_lines.values()) + [self.portfolio_line]
+        return [self.portfolio_line]
     
     def stop_simulation(self):
         """Stop the simulation and show results"""
@@ -478,32 +437,35 @@ class StockInvestmentSimulator:
         self.show_results()
     
     def show_results(self):
-        """Show final results and ask to play again"""
+        """Show final results with detailed analysis"""
         # Calculate final values
         final_value = sum(stock["shares"] * stock["price"] for stock in self.stocks)
         profit_loss = final_value - self.invested_amount
         pl_percent = (profit_loss / self.invested_amount) * 100 if self.invested_amount else 0
         
-        # Show results dialog
-        pl_color = "#4CAF50" if profit_loss >= 0 else "#F44336"
-        pl_text = "PROFIT" if profit_loss >= 0 else "LOSS"
-        
+        # Create results window
         result_window = tk.Toplevel(self.root)
         result_window.title("Simulation Results")
-        result_window.geometry("500x300")
+        result_window.geometry("1100x900")
         
-        frame = ttk.Frame(result_window, padding=20)
-        frame.pack(expand=True, fill="both")
+        # Main container
+        main_frame = ttk.Frame(result_window, padding=20)
+        main_frame.pack(expand=True, fill="both")
         
+        # Results header
         ttk.Label(
-            frame,
-            text="Simulation Complete!",
-            font=("Helvetica", 18, "bold")
+            main_frame,
+            text="Simulation Results",
+            font=("Helvetica", 20, "bold")
         ).pack(pady=10)
         
-        # Results summary
-        summary_frame = ttk.Frame(frame)
+        # Summary frame
+        summary_frame = ttk.Frame(main_frame)
         summary_frame.pack(fill="x", pady=20)
+        
+        # Portfolio summary
+        pl_color = "#4CAF50" if profit_loss >= 0 else "#F44336"
+        pl_text = "PROFIT" if profit_loss >= 0 else "LOSS"
         
         ttk.Label(
             summary_frame,
@@ -513,7 +475,7 @@ class StockInvestmentSimulator:
         
         ttk.Label(
             summary_frame,
-            text=f"Final Value: ${final_value:,.2f}",
+            text=f"Final Portfolio Value: ${final_value:,.2f}",
             font=("Helvetica", 12)
         ).pack(anchor="w", pady=5)
         
@@ -524,8 +486,135 @@ class StockInvestmentSimulator:
             foreground=pl_color
         ).pack(anchor="w", pady=10)
         
-        # Action buttons
-        button_frame = ttk.Frame(frame)
+        # Stock performance details
+        ttk.Separator(main_frame).pack(fill="x", pady=10)
+        ttk.Label(
+            main_frame,
+            text="Stock Performance Details",
+            font=("Helvetica", 16, "bold")
+        ).pack(pady=10)
+        
+        # Create a notebook for different views
+        notebook = ttk.Notebook(main_frame)
+        notebook.pack(expand=True, fill="both", pady=10)
+        
+        # Tab 1: Performance Table
+        table_frame = ttk.Frame(notebook)
+        notebook.add(table_frame, text="Performance Table")
+        
+        # Create treeview for stock performance
+        columns = ("symbol", "name", "shares", "start", "end", "change", "value")
+        tree = ttk.Treeview(
+            table_frame,
+            columns=columns,
+            show="headings",
+            height=8
+        )
+        
+        # Configure columns
+        tree.heading("symbol", text="Symbol")
+        tree.heading("name", text="Company")
+        tree.heading("shares", text="Shares")
+        tree.heading("start", text="Start Price")
+        tree.heading("end", text="End Price")
+        tree.heading("change", text="Change")
+        tree.heading("value", text="Value")
+        
+        tree.column("symbol", width=80, anchor="center")
+        tree.column("name", width=120, anchor="w")
+        tree.column("shares", width=80, anchor="e")
+        tree.column("start", width=100, anchor="e")
+        tree.column("end", width=100, anchor="e")
+        tree.column("change", width=100, anchor="e")
+        tree.column("value", width=120, anchor="e")
+        
+        # Add scrollbar
+        scrollbar = ttk.Scrollbar(table_frame, orient="vertical", command=tree.yview)
+        tree.configure(yscrollcommand=scrollbar.set)
+        scrollbar.pack(side="right", fill="y")
+        tree.pack(fill="both", expand=True, padx=5, pady=5)
+        
+        # Populate with invested stocks
+        for stock in self.stocks:
+            if stock["shares"] > 0:
+                start_price = self.historical_data[stock["symbol"]][0]
+                end_price = stock["price"]
+                change = end_price - start_price
+                change_percent = (change / start_price) * 100
+                value = stock["shares"] * end_price
+                
+                tree.insert("", "end", values=(
+                    stock["symbol"],
+                    stock["name"],
+                    stock["shares"],
+                    f"${start_price:,.2f}",
+                    f"${end_price:,.2f}",
+                    f"{'+' if change >= 0 else ''}{change:,.2f} ({change_percent:+.2f}%)",
+                    f"${value:,.2f}"
+                ), tags=("profit" if change >= 0 else "loss"))
+        
+        # Configure tag colors
+        tree.tag_configure("profit", foreground="#4CAF50")
+        tree.tag_configure("loss", foreground="#F44336")
+        
+        # Tab 2: Interactive View with improved slider
+        interactive_frame = ttk.Frame(notebook)
+        notebook.add(interactive_frame, text="Historical Graph")
+        
+        # Create figure for interactive view
+        self.interactive_fig, self.interactive_ax = plt.subplots(figsize=(9, 4), dpi=100)
+        self.interactive_fig.patch.set_facecolor('#2d2d2d')
+        self.interactive_ax.set_facecolor('#2d2d2d')
+        
+        # Style the axes
+        for spine in self.interactive_ax.spines.values():
+            spine.set_color('#444')
+        self.interactive_ax.tick_params(colors='white')
+        self.interactive_ax.yaxis.label.set_color('white')
+        self.interactive_ax.xaxis.label.set_color('white')
+        self.interactive_ax.title.set_color('white')
+        
+        # Slider frame with improved visibility
+        slider_frame = ttk.Frame(interactive_frame)
+        slider_frame.pack(fill="x", pady=(10, 15), padx=20)
+        
+        # Large, visible slider components
+        ttk.Label(
+            slider_frame,
+            text="Time:",
+            font=("Helvetica", 12, "bold")
+        ).pack(side="left")
+        
+        self.slider_var = tk.IntVar(value=0)
+        self.slider = ttk.Scale(
+            slider_frame,
+            from_=0,
+            to=len(self.time_points)-1,
+            variable=self.slider_var,
+            command=self.update_interactive_view,
+            length=600,  # Extra wide slider
+            style="Horizontal.TScale"
+        )
+        self.slider.pack(side="left", expand=True, fill="x", padx=10)
+        
+        self.time_label = ttk.Label(
+            slider_frame,
+            text="0s",
+            font=("Helvetica", 12, "bold"),
+            width=6
+        )
+        self.time_label.pack(side="left")
+        
+        # Create initial interactive view
+        self.update_interactive_view()
+        
+        # Embed in Tkinter
+        self.interactive_canvas = FigureCanvasTkAgg(self.interactive_fig, master=interactive_frame)
+        self.interactive_canvas.draw()
+        self.interactive_canvas.get_tk_widget().pack(expand=True, fill="both", padx=10, pady=10)
+        
+        # Action button
+        button_frame = ttk.Frame(main_frame)
         button_frame.pack(fill="x", pady=20)
         
         ttk.Button(
@@ -538,6 +627,38 @@ class StockInvestmentSimulator:
         result_window.transient(self.root)
         result_window.grab_set()
         self.root.wait_window(result_window)
+    
+    def update_interactive_view(self, *args):
+        """Update the interactive view based on slider position"""
+        time_idx = self.slider_var.get()
+        if time_idx >= len(self.time_points):
+            return
+        
+        self.interactive_ax.clear()
+        
+        # Update time label
+        self.time_label.config(text=f"{self.time_points[time_idx]}s")
+        
+        # Plot all invested stocks up to current time
+        for stock in self.stocks:
+            if stock["shares"] > 0:
+                self.interactive_ax.plot(
+                    self.time_points[:time_idx+1],
+                    self.historical_data[stock["symbol"]][:time_idx+1],
+                    '-',
+                    color=stock["color"],
+                    linewidth=1.5,
+                    label=f"{stock['symbol']}"
+                )
+        
+        self.interactive_ax.set_title(f"Stock Prices at {self.time_points[time_idx]}s", pad=20)
+        self.interactive_ax.set_xlabel("Time (s)", labelpad=10)
+        self.interactive_ax.set_ylabel("Price ($)", labelpad=10)
+        self.interactive_ax.legend()
+        self.interactive_ax.grid(True, color='#444', linestyle='--', alpha=0.5)
+        self.interactive_ax.set_xlim(0, self.time_points[-1])
+        
+        self.interactive_canvas.draw()
     
     def reset_and_restart(self):
         """Reset the game and return to welcome page"""
