@@ -30,9 +30,8 @@ class StockInvestmentSimulator:
         # Initialize UI
         self.create_welcome_page()
     
-    def reset_game(self):
-        """Reset all game variables to beginner state"""
-        self.initial_balance = 50000
+    def reset_game(self):                                   #this resets the base initial numbers to the default. budget, time, etc.
+        self.initial_balance = 10000
         self.user_balance = self.initial_balance
         self.invested_amount = 0
         self.simulation_active = False
@@ -59,8 +58,7 @@ class StockInvestmentSimulator:
         self.portfolio_history = []
         self.time_points = []
     
-    def create_welcome_page(self):
-        """Create the welcome/intro page"""
+    def create_welcome_page(self):          #welcome page. I will change sizes in the future.
         self.clear_window()
         
         frame = ttk.Frame(self.root, padding=20)
@@ -69,17 +67,26 @@ class StockInvestmentSimulator:
         title_label = ttk.Label(
             frame, 
             text="📈 Stock Investment Simulator 📉",          #Heh, emojis
-            font=("Helvetica", 24, "bold")
+            font=("Helvetica", 48, "bold")
         )
         title_label.pack(pady=20)
         
         description = ttk.Label(
             frame,
             text="Invest in simulated stocks and track your portfolio performance with the MarcMax Ultra Realistic Stock Simulator!",
-            font=("Helvetica", 12),        #Helvetic looks neat and it fits with the GUI we shamelessly stole from Github
+            font=("Helvetica", 12),        # Helvetic looks neat and it fits with the GUI we shamelessly stole from Github
             wraplength=600
         )
         description.pack(pady=10)
+
+        disclaimer = ttk.Label(
+            frame,
+            text="We are not responsible for your eventual bankruptcy",
+            font=("Helvetica", 12),
+        )
+        disclaimer.pack(pady=10)
+        description.pack(pady=10)
+
  # Display current balance. Made by me. With a lot of cursing. Did you know chatgpt is incapable of making a simple label? AHHHHHHHH
         self.balance_label = ttk.Label(
             frame,
@@ -505,13 +512,12 @@ class StockInvestmentSimulator:
             font=("Helvetica", 16, "bold")
         ).pack(pady=10)
         
-        # Create a notebook for different views
+        # Create a notebook for different views. 
         notebook = ttk.Notebook(main_frame)
         notebook.pack(expand=True, fill="both", pady=10)
-        
         # Tab 1: Performance Table                                                                       #Now i was going to add a second tab to show a historical slider of the stocks
         table_frame = ttk.Frame(notebook)                                                                #However, this just DID not work. i just removed it and it seems to be fine as it is. if there is any strange code here that seems to be not needed its because i forgot to remove it and it doesnt affect the code
-        notebook.add(table_frame, text="Performance Table")
+        notebook.add(table_frame, text="Performance Table")                                              
         
         # Create treeview for stock performance
         columns = ("symbol", "name", "shares", "start", "end", "change", "value")
