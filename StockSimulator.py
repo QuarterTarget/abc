@@ -135,7 +135,7 @@ class StockInvestmentSimulator:
         stock_combobox = ttk.Combobox(
             control_frame,
             textvariable=self.stock_var,
-            values=[f"{stock['symbol']} - {stock['name']}" for stock in self.stocks],
+            values=[f"{stock['symbol']} - {stock['name']} - {stock['price']}$" for stock in self.stocks],
             state="readonly"
         )
         stock_combobox.pack(fill="x", pady=5)
