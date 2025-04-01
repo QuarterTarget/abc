@@ -19,7 +19,7 @@ class StockInvestmentSimulator:
     def __init__(self, root):
         self.root = root
         self.root.title("Stock Investment Simulator")
-        self.root.geometry("1100x800")
+        self.root.geometry("1920x1200")
         
         # Apply the theme
         sv_ttk.set_theme("dark")
