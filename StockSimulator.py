@@ -49,7 +49,7 @@ class StockInvestmentSimulator:
             {"name": "Microsoft", "symbol": "MSFT", "price": 30.25, "volatility":  random.uniform(-4, 4), "shares": 0, "color": "#9467bd"},                #The prices are low and the budget is high. I might change this later but tbh I will keep it. if it works dont fix it!
             {"name": "Netflix", "symbol": "NFLX", "price": 40.60, "volatility":  random.uniform(-4, 4), "shares": 0, "color": "#8c564b"},                  #volatility will determine how much the different stocks change in price. for example a higher volatility means higher jumps in price. 
             {"name": "Nvidia", "symbol": "NVDA", "price": 60.75, "volatility":  random.uniform(-4, 4), "shares": 0, "color": "#e377c2"},                   #volatility is determined by a random number generator I have created
-            {"name": "Meta", "symbol": "META", "price": 35.40, "volatility":  random.uniform(-4, 4), "shares": 0, "color": "#7f7f7f"}
+            {"name": "Meta", "symbol": "META", "price": 35.40, "volatility":  random.uniform(-4, 4), "shares": 0, "color": "#7f7f7f"}                      #Colour was part of our first try to make coloured lines. did not work
             
         ]
         
@@ -504,9 +504,9 @@ class StockInvestmentSimulator:
         
         # Create a notebook for different views. 
         notebook = ttk.Notebook(main_frame)
-        notebook.pack(expand=True, fill="both", pady=10)
-        # Tab 1: Performance Table                                                                       #Now i was going to add a second tab to show a historical slider of the stocks
-        table_frame = ttk.Frame(notebook)                                                                #However, this just DID not work. i just removed it and it seems to be fine as it is. if there is any strange code here that seems to be not needed its because i forgot to remove it and it doesnt affect the code
+        notebook.pack(expand=True, fill="both", pady=10)                 #BIG NOTE!!!!!
+        # Tab 1: Performance Table                                       #Now i was going to add a second tab to show a historical slider of the stocks
+        table_frame = ttk.Frame(notebook)                                #However, this just DID not work. i just removed it and it seems to be fine as it is. if there is any strange code here that seems to be not needed its because i forgot to remove it and it doesnt affect the code
         notebook.add(table_frame, text="Performance Table")                                              
         
         # Create treeview for stock performance
@@ -518,7 +518,7 @@ class StockInvestmentSimulator:
             height=8
         )
         
-        # Configure columns
+        # ConfigureD columns using AI because once again, did not want to type it out
         tree.heading("symbol", text="Symbol")
         tree.heading("name", text="Company")
         tree.heading("shares", text="Shares")
@@ -526,7 +526,6 @@ class StockInvestmentSimulator:
         tree.heading("end", text="End Price")
         tree.heading("change", text="Change")
         tree.heading("value", text="Value")
-        
         tree.column("symbol", width=80, anchor="center")
         tree.column("name", width=120, anchor="w")
         tree.column("shares", width=80, anchor="e")
@@ -535,7 +534,7 @@ class StockInvestmentSimulator:
         tree.column("change", width=100, anchor="e")
         tree.column("value", width=120, anchor="e")
         
-        # Add scrollbar
+        # Add scrollbar because several bits would get cut off. Thanks deepseek!
         scrollbar = ttk.Scrollbar(table_frame, orient="vertical", command=tree.yview)
         tree.configure(yscrollcommand=scrollbar.set)
         scrollbar.pack(side="right", fill="y")
