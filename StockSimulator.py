@@ -244,20 +244,19 @@ class StockInvestmentSimulator:
         ).pack(side="right")
     
     def create_portfolio_chart(self, parent):
-        """Create the portfolio chart"""
         self.fig, self.ax = plt.subplots(figsize=(9, 5), dpi=100)
         self.fig.patch.set_facecolor('#2d2d2d')
         self.ax.set_facecolor('#2d2d2d')
         
-        # Axes verändert. Max
-        for spine in self.ax.spines.values():
+        # set colour of ax
+        for spine in self.ax.spines.values():                                               #ax is a function of matplotlib needed to form the chart
             spine.set_color('#444')
         self.ax.tick_params(colors='white')
         self.ax.yaxis.label.set_color('white')
         self.ax.xaxis.label.set_color('white')
         self.ax.title.set_color('white')
         
-        # leere portfolio line. Max
+        # sets the title, labels and legend of the 
         self.portfolio_line, = self.ax.plot([], [], 'w-', linewidth=2, label="Portfolio Value")
         
         self.ax.set_title("Portfolio Value Over Time", pad=20)
@@ -266,7 +265,7 @@ class StockInvestmentSimulator:
         self.ax.legend()
         self.ax.grid(True, color='#444', linestyle='--', alpha=0.5)
         
-        # ganzi in TKinter einfügen. Max
+        # intergrates and renders the Matplotlib onto the canvas
         self.canvas = FigureCanvasTkAgg(self.fig, master=parent)
         self.canvas.draw()
         self.canvas.get_tk_widget().pack(expand=True, fill="both", padx=10, pady=10)
@@ -280,7 +279,7 @@ class StockInvestmentSimulator:
             messagebox.showwarning("Invalid Input", "Please enter a positive number of shares")
             return
         
-        # findet stock in der liste. Max
+        # finds the stock selected within the list
         stock = next((s for s in self.stocks if s["symbol"] == selected), None)
         if not stock:
             return
@@ -346,7 +345,7 @@ class StockInvestmentSimulator:
         for stock in self.stocks:
             self.historical_data[stock["symbol"]] = [stock["price"]]
         
-        # OK OK OK it works? sorta?? This opens the simulation.
+        # OK OK OK it works? sorta?? You have to kill all the terminals first for it to work. This opens the simulation.
         self.create_simulation_page()
         
         # start animation. this uses the funcanimation I mentioned at the start. Deepseek many thanks! I will donate to the chinese gov. for this. 
