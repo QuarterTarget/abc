@@ -66,7 +66,7 @@ class StockInvestmentSimulator:
         
         title_label = ttk.Label(
             frame, 
-            text="📈 Stock Investment Simulator 📉",          #Heh, emojis
+            text="📈 KSZ Stock Investment Simulator 📉",          #Heh, emojis
             font=("Helvetica", 48, "bold")
         )
         title_label.pack(pady=20)
@@ -104,8 +104,7 @@ class StockInvestmentSimulator:
         )
         start_button.pack(pady=20)
     
-    def create_investment_page(self):
-        """Create the investment page with trading controls"""
+    def create_investment_page(self):                        #creates the page
         self.clear_window()
         
         main_frame = ttk.Frame(self.root)
@@ -221,8 +220,7 @@ class StockInvestmentSimulator:
         self.create_portfolio_chart(chart_frame)
         self.update_portfolio_display()
     
-    def update_balance_display(self, parent):
-        """Update the balance display"""
+    def update_balance_display(self, parent):                        #updates the display balance
         if hasattr(self, 'balance_frame'):
             self.balance_frame.destroy()
             
@@ -271,7 +269,6 @@ class StockInvestmentSimulator:
         self.canvas.get_tk_widget().pack(expand=True, fill="both", padx=10, pady=10)
     
     def trade_stock(self, action):
-        """Handle buying or selling shares"""
         selected = self.stock_var.get().split(" - ")[0]
         shares = self.shares_var.get()
         
@@ -320,7 +317,6 @@ class StockInvestmentSimulator:
         self.simulate_button.config(state="normal" if self.invested_amount > 0 else "disabled")
     
     def update_portfolio_display(self):
-        """Update the portfolio treeview"""
         for item in self.portfolio_tree.get_children():
             self.portfolio_tree.delete(item)
         
@@ -334,14 +330,13 @@ class StockInvestmentSimulator:
                     f"${value:,.2f}"
                 ))
     
-    def start_simulation(self):
-        """Start the stock simulation"""
+    def start_simulation(self):                              #starts the simulation
         self.simulation_active = True
         self.current_time = 0
         self.time_points = []
         self.portfolio_history = []
         
-        # nimmt vorherige historical daten.
+        # takes the historical stock data
         for stock in self.stocks:
             self.historical_data[stock["symbol"]] = [stock["price"]]
         
@@ -359,7 +354,6 @@ class StockInvestmentSimulator:
         self.canvas.draw()
     
     def create_simulation_page(self):
-        """Create the simulation page"""
         self.clear_window()
         
         frame = ttk.Frame(self.root, padding=20)
@@ -407,7 +401,6 @@ class StockInvestmentSimulator:
         self.stop_button.pack(pady=10)
     
     def update_simulation(self, frame):
-        """Update function for the animation"""
         if not self.simulation_active:
             return
         
@@ -447,14 +440,12 @@ class StockInvestmentSimulator:
         return [self.portfolio_line]
     
     def stop_simulation(self):
-        """Stop the simulation and show results"""
         self.simulation_active = False
-        if hasattr(self, 'ani'):
+        if hasattr(self, 'ani'):                              #i figured out using hasattr (returns True if the specified object has the specified attribute) via Chatgpt
             self.ani.event_source.stop()
         self.show_results()
     
     def show_results(self):
-        """Show final results with detailed analysis"""
         # calculates the final value of the portfolio
         final_value = sum(stock["shares"] * stock["price"] for stock in self.stocks)
         profit_loss = final_value - self.invested_amount
@@ -587,14 +578,6 @@ class StockInvestmentSimulator:
         result_window.transient(self.root)
         result_window.grab_set()
         self.root.wait_window(result_window)
-    
-    def update_interactive_view(self, *args):
-        """Update the interactive view based on slider position"""
-        time_idx = self.slider_var.get()
-        if time_idx >= len(self.time_points):
-            return
-        
-        self.interactive_ax.clear()
         
         # Update time label
         self.time_label.config(text=f"{self.time_points[time_idx]}s")
@@ -610,15 +593,6 @@ class StockInvestmentSimulator:
                     linewidth=1.5,
                     label=f"{stock['symbol']}"
                 )
-        
-        self.interactive_ax.set_title(f"Stock Prices at {self.time_points[time_idx]}s", pad=20)
-        self.interactive_ax.set_xlabel("Time (s)", labelpad=10)
-        self.interactive_ax.set_ylabel("Price ($)", labelpad=10)
-        self.interactive_ax.legend()
-        self.interactive_ax.grid(True, color='#444', linestyle='--', alpha=0.5)
-        self.interactive_ax.set_xlim(0, self.time_points[-1])
-        
-        self.interactive_canvas.draw()
     
     def reset_and_restart(self):
         """Reset the game and return to welcome page"""
