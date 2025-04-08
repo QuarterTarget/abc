@@ -20,10 +20,12 @@ class StockInvestmentSimulator:
         self.root = root
         self.root.title("Stock Investment Simulator")
         self.root.geometry("1920x1200")
+        self.root.iconbitmap("Icon.ico")
         
         # Apply the theme
         sv_ttk.set_theme("dark")
-        
+
+
         # Initialize game state (Thanks Deepseek! I was so confused about this part)
         self.reset_game()
         
@@ -66,7 +68,7 @@ class StockInvestmentSimulator:
         
         title_label = ttk.Label(
             frame, 
-            text="📈 KSZ Stock Investment Simulator 📉",          #Heh, emojis
+            text="📈 KSZ Stock Investment Simulator 📉",          #I put the emojis in because they look nice XD
             font=("Helvetica", 48, "bold")
         )
         title_label.pack(pady=20)
@@ -119,7 +121,7 @@ class StockInvestmentSimulator:
         chart_frame.pack(side="right", expand=True, fill="both", padx=10, pady=10)
         
         # Trading controls. .pack is needed 
-        ttk.Label(
+        ttk.Label(                                                                               #
             control_frame,
             text="Investment Controls",
             font=("Helvetica", 16, "bold")
@@ -169,7 +171,7 @@ class StockInvestmentSimulator:
             command=lambda: self.trade_stock("sell")
         ).pack(side="left", padx=5)
         
-        # Portfolio summary box. shows the current portfolio of the user. I got confused and did a few different tries but in the end Iused Treeview for this.
+        # Portfolio summary box. shows the current portfolio of the user. I got confused and did a few tdifferent tries but in the end Iused Treeview for this.
         ttk.Separator(control_frame).pack(fill="x", pady=10)
         ttk.Label(
             control_frame,
@@ -586,7 +588,7 @@ class StockInvestmentSimulator:
             if stock["shares"] > 0:
                 self.interactive_ax.plot(
                     self.time_points[:time_idx+1],
-                    self.historical_data[stock["symbol"]][:time_idx+1],
+                    self.historical_data[stock["symbol"]][:time_idx+1],        #MARCEL: PAMIĘTAJ ABY USUNĄĆ ŻÓŁTE OSTRZEŻENIA TIME_IDX 
                     '-',
                     color=stock["color"],
                     linewidth=1.5,
@@ -594,12 +596,10 @@ class StockInvestmentSimulator:
                 )
     
     def reset_and_restart(self):
-        """Reset the game and return to welcome page"""
         self.reset_game()
         self.create_welcome_page()
     
     def clear_window(self):
-        """Clear all widgets from the root window"""
         for widget in self.root.winfo_children():
             widget.destroy()
 
