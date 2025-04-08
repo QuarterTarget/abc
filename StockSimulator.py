@@ -41,15 +41,15 @@ class StockInvestmentSimulator:
         #This next portion is almost all codes for the GUI. I will label each section with a comment so it is visible who did what and what it does.
         # Stock data with color coding. This part was made with Chatgpt, mostly due to me not being arsed to manually type it out. Are you serious? My fingers will hurt
         self.stocks = [
-            {"name": "Tesla", "symbol": "TSLA", "price": 25.50, "volatility": random.uniform(-4, 4), "shares": 0, "color": "#1f77b4"},
-            {"name": "Apple", "symbol": "AAPL", "price": 18.75, "volatility":  random.uniform(-4, 4), "shares": 0, "color": "#ff7f0e"},
-            {"name": "Amazon", "symbol": "AMZN", "price": 15.20, "volatility":  random.uniform(-4, 4), "shares": 0, "color": "#2ca02c"},
-            {"name": "Silly strange crypto some guy advertised on twitter", "symbol": "SCAM", "price": 69.42, "volatility":  random.uniform(-100, 100), "shares": 0, "color": "#964b00"},
-            {"name": "Google", "symbol": "GOOGL", "price": 14.80, "volatility":  random.uniform(-4, 4), "shares": 0, "color": "#d62728"},
-            {"name": "Microsoft", "symbol": "MSFT", "price": 30.25, "volatility":  random.uniform(-4, 4), "shares": 0, "color": "#9467bd"},                #The prices are low and the budget is high. I might change this later but tbh I will keep it. if it works dont fix it!
-            {"name": "Netflix", "symbol": "NFLX", "price": 40.60, "volatility":  random.uniform(-4, 4), "shares": 0, "color": "#8c564b"},                  #volatility will determine how much the different stocks change in price. for example a higher volatility means higher jumps in price. 
-            {"name": "Nvidia", "symbol": "NVDA", "price": 60.75, "volatility":  random.uniform(-4, 4), "shares": 0, "color": "#e377c2"},                   #volatility is determined by a random number generator I have created
-            {"name": "Meta", "symbol": "META", "price": 35.40, "volatility":  random.uniform(-4, 4), "shares": 0, "color": "#7f7f7f"}                      #Colour was part of our first try to make coloured lines. did not work
+            {"name": "Tesla", "symbol": "TSLA", "price": 25.50, "volatility": random.uniform(-4, 4), "shares": 0,},
+            {"name": "Apple", "symbol": "AAPL", "price": 18.75, "volatility":  random.uniform(-4, 4), "shares": 0,},
+            {"name": "Amazon", "symbol": "AMZN", "price": 15.20, "volatility":  random.uniform(-4, 4), "shares": 0,},
+            {"name": "Silly strange crypto some guy advertised on twitter", "symbol": "SCAM", "price": 69.42, "volatility":  random.uniform(-100, 100), "shares": 0,},
+            {"name": "Google", "symbol": "GOOGL", "price": 14.80, "volatility":  random.uniform(-4, 4), "shares": 0,},
+            {"name": "Microsoft", "symbol": "MSFT", "price": 30.25, "volatility":  random.uniform(-4, 4), "shares": 0,},                #The prices are low and the budget is high. I might change this later but tbh I will keep it. if it works dont fix it!
+            {"name": "Netflix", "symbol": "NFLX", "price": 40.60, "volatility":  random.uniform(-4, 4), "shares": 0,},                  #volatility will determine how much the different stocks change in price. for example a higher volatility means higher jumps in price. 
+            {"name": "Nvidia", "symbol": "NVDA", "price": 60.75, "volatility":  random.uniform(-4, 4), "shares": 0,},                   #volatility is determined by a random number generator I have created
+            {"name": "Meta", "symbol": "META", "price": 35.40, "volatility":  random.uniform(-4, 4), "shares": 0,}                      #Colour was part of our first try to make coloured lines. did not work and we removed this.
             
         ]
         
@@ -58,7 +58,7 @@ class StockInvestmentSimulator:
         self.portfolio_history = []
         self.time_points = []
     
-    def create_welcome_page(self):          #welcome page. I will change sizes in the future.
+    def create_welcome_page(self):          #welcome page. I will change sizes in the future. Future change: done
         self.clear_window()
         
         frame = ttk.Frame(self.root, padding=20)
@@ -91,7 +91,7 @@ class StockInvestmentSimulator:
         self.balance_label = ttk.Label(
             frame,
             text=f"Starting Balance: ${self.initial_balance:,.2f}",        #to be fully serious, I used some youtube tutorial for this. 
-            font=("Helvetica", 14, "bold"),
+            font=("Helvetica", 14, "bold"),                                #a large portion of the formatting of the GUIS was learned via youtube, this means boxes, buttons, drop down menus etc.
             foreground="#4CAF50"
         )
         self.balance_label.pack(pady=20)
@@ -110,11 +110,11 @@ class StockInvestmentSimulator:
         main_frame = ttk.Frame(self.root)
         main_frame.pack(expand=True, fill="both", padx=10, pady=10)
         
-        # Left panel - Trading controls. I learned how to frame things! Yay!                   
+        # Panel on the left is where you select the stocks, then shows the purchased stocks and the amount of shares you have bought at the bottom left                   
         control_frame = ttk.Frame(main_frame, width=350)
         control_frame.pack(side="left", fill="y", padx=10, pady=10)
         
-        # Right panel - Chart
+        # Right panel - Chart. Kinda useless because it doesn't show anything until the animation begins
         chart_frame = ttk.Frame(main_frame)
         chart_frame.pack(side="right", expand=True, fill="both", padx=10, pady=10)
         
@@ -128,7 +128,7 @@ class StockInvestmentSimulator:
         # udpates and shows the current balance of the veri smart investor 
         self.update_balance_display(control_frame)
         
-        # Stock selection. I thought a dropdown menu like this is pretty cool. Tutorial was needed. Thanks random bengali guy on youtube! I was thinking about adding the current price of the stock as well.
+        # Stock selection. I thought a dropdown menu like this is pretty cool. Tutorial was needed. Thanks random bengali guy on youtube!
         ttk.Label(control_frame, text="Select Stock:").pack(pady=5)
         self.stock_var = tk.StringVar()
         stock_combobox = ttk.Combobox(
@@ -153,7 +153,7 @@ class StockInvestmentSimulator:
         shares_spin.pack(pady=5)
         
         # Buy/Sell buttons. Pretty simple
-        button_frame = ttk.Frame(control_frame)
+        button_frame = ttk.Frame(control_frame)             #the formatting of buttons via tkinter was done via youtube tutorial 
         button_frame.pack(pady=10)
         
         ttk.Button(
@@ -169,7 +169,7 @@ class StockInvestmentSimulator:
             command=lambda: self.trade_stock("sell")
         ).pack(side="left", padx=5)
         
-        # Portfolio summary box. shows the current portfolio of the user. I used a treeview for this.
+        # Portfolio summary box. shows the current portfolio of the user. I got confused and did a few different tries but in the end Iused Treeview for this.
         ttk.Separator(control_frame).pack(fill="x", pady=10)
         ttk.Label(
             control_frame,
